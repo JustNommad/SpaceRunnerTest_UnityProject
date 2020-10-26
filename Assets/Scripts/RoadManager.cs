@@ -19,7 +19,7 @@ public class RoadManager : MonoBehaviour
         InitializeRoad();
     }
 
-    void Update()
+    void FixedUpdate()
     {
         CheckBlocks();
     }

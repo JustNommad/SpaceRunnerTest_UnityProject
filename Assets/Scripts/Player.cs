@@ -15,6 +15,8 @@ public class Player : MonoBehaviour
     private AudioClip _explosion;
     [SerializeField]
     private AudioClip _boostSound;
+    [SerializeField] 
+    private AudioClip _buttonSound;
     [SerializeField]
     private float _defaultHorizontalSpeed = 4.0f;
     [SerializeField]
@@ -47,6 +49,8 @@ public class Player : MonoBehaviour
     private float _horizontalSpeed = 0;
     private bool _isBoostActive = false;
     private Vector3 _defaultPosition;
+    private float _soundVolume = 1.0f;
+    private float _soundMusicVolume = 1.0f;
 
     private SpawnManager _spawnManager;
     private RoadManager _roadManager;
@@ -54,6 +58,29 @@ public class Player : MonoBehaviour
     private UIManager _uiManager;
     private SaveLoadGame _saveLoadGame;
     private AudioSource _audioSource;
+    private AudioSource _mainSource;
+
+    public float SoundVolume
+    {
+        get => _soundVolume;
+        set
+        {
+            _soundVolume = value;
+            _audioSource.volume = _soundVolume;
+        }
+    }
+
+    public float SoundMusicVolume
+    {
+        get => _soundMusicVolume;
+        set
+        {
+            _soundMusicVolume = value;
+            _mainSource.volume = _soundMusicVolume;
+        }
+    }
+    public bool IsOption { get; set; }
+
     public bool IsAlive { get; private set; }
     public float Speed { get; private set; }
     public float AsteroidDistanceSpawnFrom { get; private set; }
@@ -76,7 +103,7 @@ public class Player : MonoBehaviour
             CalculateScore();
             DifficultyUpgrade();
         }
-        else
+        else if(!IsOption)
             StartGame();
     }
     void DifficultyUpgrade()
@@ -117,7 +144,7 @@ public class Player : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space) && !_isBoostActive)
         {
             _isBoostActive = true;
-            _audioSource.PlayOneShot(_boostSound);
+            _audioSource.PlayOneShot(_boostSound, _soundVolume);
             Speed = _defaultSpeed * _speedBoost;
             _horizontalSpeed = _defaultHorizontalSpeed + 2.0f;
             ChangeCameraPosition(true);             //changing camera position when a boost is active
@@ -170,6 +197,11 @@ public class Player : MonoBehaviour
         _audioSource = gameObject.GetComponent<AudioSource>();
         if (_audioSource == null)
             Debug.Log("Player: _audioSource is NULL");
+
+        _mainSource = _mainCamera.GetComponent<AudioSource>();
+
+        _soundVolume = _audioSource.volume;
+        _soundMusicVolume = _mainSource.volume;
 
         //creating a saveFile 
         _saveLoadGame = new SaveLoadGame();
@@ -255,10 +287,18 @@ public class Player : MonoBehaviour
     }
     private void StartGame()
     {
+        if (Input.GetKeyDown(KeyCode.O) && !IsOption)
+        {
+            _uiManager.OptionsUI();
+            IsOption = true;
+            return;
+        }
         //change UI
         _uiManager.StartGame();
         if(Input.anyKey)
         {
+            _audioSource.PlayOneShot(_buttonSound, _soundVolume);
+            
             IsAlive = true;
             _spawnManager.CanSpawn = true;
             _audioSource.Play();

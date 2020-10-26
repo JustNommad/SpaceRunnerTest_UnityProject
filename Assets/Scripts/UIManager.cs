@@ -41,6 +41,14 @@ public class UIManager : MonoBehaviour
     private GameObject _startUI;
     [SerializeField]
     private GameObject _gamePlayUI;
+    [SerializeField] 
+    private GameObject _optionsUI;
+    [SerializeField] 
+    private Slider _musicSlider;
+    [SerializeField] 
+    private Slider _effectSlider;
+    [SerializeField] 
+    private Player _player;
 
 
     public int score = 0;
@@ -62,6 +70,9 @@ public class UIManager : MonoBehaviour
         UpdateUI();
         if (_gameOverUI.activeSelf)
             RestartGame();
+        if(_optionsUI.activeSelf)
+            Options();
+            
     }
     //upgrade UI when the game is running
     void UpdateUI()
@@ -90,6 +101,7 @@ public class UIManager : MonoBehaviour
     {
         _gamePlayUI.SetActive(false);
         _startUI.SetActive(false);
+        _optionsUI.SetActive(false);
         //update a UI manager with new data
         if (bestTime <= time || hightScore <= score)
             _record.enabled = true;
@@ -107,12 +119,14 @@ public class UIManager : MonoBehaviour
     {
         _startUI.SetActive(false);
         _gameOverUI.SetActive(false);
+        _optionsUI.SetActive(false);
         _gamePlayUI.SetActive(true);
     }
     public void StartGame()
     {
         _gameOverUI.SetActive(false);
         _gamePlayUI.SetActive(false);
+        _optionsUI.SetActive(false);
         _startUI.SetActive(true);
     }
     private void RestartGame()
@@ -123,7 +137,26 @@ public class UIManager : MonoBehaviour
             var index = SceneManager.GetActiveScene().buildIndex;
             SceneManager.LoadScene(index);
         }
+
         if (Input.GetKeyDown(KeyCode.Escape))
+        {
             Application.Quit();
+        }
+    }
+
+    public void OptionsUI()
+    {
+        _gameOverUI.SetActive(false);
+        _gamePlayUI.SetActive(false);
+        _startUI.SetActive(false);
+        _effectSlider.value = _player.SoundVolume;
+        _musicSlider.value = _player.SoundMusicVolume;
+        _optionsUI.SetActive(true);
+    }
+
+    private void Options()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+            _player.IsOption = false;
     }
 }
